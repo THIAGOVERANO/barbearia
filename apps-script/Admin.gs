@@ -91,6 +91,26 @@ function adminDia(senha, data) {
   };
 }
 
+// Diz por que um horário não pode ser marcado (ou devolve vazio se pode).
+// Vale para o painel: não deixa marcar fora do funcionamento, em dia fechado ou no passado.
+function erroDeHorario(dataStr, hora, duracao) {
+  const hoje = Utilities.formatDate(new Date(), CONFIG.fuso, 'yyyy-MM-dd');
+  const agoraMin = minutos(Utilities.formatDate(new Date(), CONFIG.fuso, 'HH:mm'));
+  if (dataStr < hoje) return 'Essa data já passou.';
+
+  const p = dataStr.split('-').map(Number);
+  const diaSemana = new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay();
+  if (CONFIG.diasFechados.indexOf(diaSemana) !== -1) return 'A barbearia está fechada nesse dia.';
+
+  const ini = minutos(hora);
+  const fim = ini + duracao;
+  if (ini < minutos(CONFIG.abertura) || fim > minutos(CONFIG.fechamento)) {
+    return 'Fora do horário de funcionamento (' + CONFIG.abertura + ' às ' + CONFIG.fechamento + '). Escolha um horário dentro dele.';
+  }
+  if (dataStr === hoje && ini <= agoraMin) return 'Esse horário já passou hoje.';
+  return '';
+}
+
 // Agendamento feito pelo painel (encaixe por telefone, por exemplo).
 // Aceita qualquer horário, desde que não bata com outro agendamento ou bloqueio.
 function adminAgendar(senha, data, hora, servicoId, barbeiro, nome, telefone) {
@@ -104,6 +124,9 @@ function adminAgendar(senha, data, hora, servicoId, barbeiro, nome, telefone) {
   const fone = String(telefone || '').replace(/\D/g, '');
   if (nomeLimpo.length < 2) return { ok: false, erro: 'Informe o nome do cliente.' };
   if (fone.length < 10 || fone.length > 11) return { ok: false, erro: 'Informe o telefone com DDD.' };
+
+  const erroHorario = erroDeHorario(data, hora, servico.duracao);
+  if (erroHorario) return { ok: false, erro: erroHorario };
 
   const trava = LockService.getScriptLock();
   trava.waitLock(15000);
