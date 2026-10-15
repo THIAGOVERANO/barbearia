@@ -116,7 +116,22 @@
     <div id="semana" class="semana"></div>
     <div id="resumo" class="resumo"></div>
 
-    <div class="acoes"><button class="btn" onclick="toggleBloqueio()">+ Bloquear horário</button></div>
+    <div class="acoes botoes">
+      <button class="btn" onclick="toggleBloqueio()">+ Bloquear horário</button>
+      <button class="btn-sec" onclick="toggleNovo()">+ Novo agendamento</button>
+    </div>
+
+    <form id="form-novo" class="form-bloqueio" hidden onsubmit="salvarNovo(event)">
+      <label>Serviço <select id="n-servico"></select></label>
+      <div class="grid2">
+        <label>Horário <input id="n-hora" type="time" required></label>
+        <label>Barbeiro <select id="n-barbeiro"></select></label>
+      </div>
+      <label>Nome do cliente <input id="n-nome" type="text" maxlength="60" required></label>
+      <label>WhatsApp (com DDD) <input id="n-tel" type="tel" inputmode="tel" placeholder="(62) 99999-9999" required></label>
+      <div id="n-erro" class="erro"></div>
+      <button class="btn btn-bloco" type="submit">Agendar cliente</button>
+    </form>
 
     <form id="form-bloqueio" class="form-bloqueio" hidden onsubmit="salvarBloqueio(event)">
       <div class="grid2">
@@ -261,6 +276,7 @@
 
     el('b-barbeiro').innerHTML = '<option value="Todos">Barbearia toda</option>' +
       r.barbeiros.map(b => '<option>' + esc(b) + '</option>').join('');
+    preencherNovo(r.servicos, r.barbeiros);
   }
 
   function cardAgendamento(a){
@@ -391,6 +407,44 @@
         : '<p class="vazio">Nenhum cliente confirmado para amanhã.</p>';
     } catch (e) {
       el('lembretes').innerHTML = '<p class="erro">' + esc(e.message || 'Erro ao carregar.') + '</p>';
+    }
+  }
+
+  // ---------- Agendamento pelo painel ----------
+  let servicosCache = [];
+
+  function toggleNovo(){
+    const form = el('form-novo');
+    form.hidden = !form.hidden;
+    if (!form.hidden) el('n-erro').textContent = '';
+  }
+
+  function preencherNovo(servicos, barbeiros){
+    servicosCache = servicos;
+    el('n-servico').innerHTML = servicos.map(s => '<option value="' + esc(s.id) + '">' + esc(s.nome) + '</option>').join('');
+    el('n-barbeiro').innerHTML = '<option value="Tanto faz">Tanto faz</option>' +
+      barbeiros.map(b => '<option>' + esc(b) + '</option>').join('');
+  }
+
+  async function salvarNovo(ev){
+    ev.preventDefault();
+    const btn = ev.target.querySelector('button[type=submit]');
+    el('n-erro').textContent = '';
+    btn.disabled = true;
+    try {
+      const r = await chamar('adminAgendar', estado.senha, estado.data,
+        el('n-hora').value, el('n-servico').value, el('n-barbeiro').value,
+        el('n-nome').value.trim(), el('n-tel').value.trim());
+      if (!r.ok) throw new Error(r.erro);
+      el('form-novo').hidden = true;
+      el('n-nome').value = '';
+      el('n-tel').value = '';
+      aviso('Cliente agendado com ' + r.barbeiro + '.');
+      atualizarTudo();
+    } catch (e) {
+      el('n-erro').textContent = e.message || 'Não consegui agendar.';
+    } finally {
+      btn.disabled = false;
     }
   }
 

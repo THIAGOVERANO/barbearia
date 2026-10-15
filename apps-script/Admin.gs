@@ -86,8 +86,46 @@ function adminDia(senha, data) {
     data: data,
     agendamentos: agendamentosDoDia(data),
     bloqueios: bloqueiosDoDia(data),
-    barbeiros: CONFIG.barbeiros
+    barbeiros: CONFIG.barbeiros,
+    servicos: SERVICOS.map(s => ({ id: s.id, nome: s.nome }))
   };
+}
+
+// Agendamento feito pelo painel (encaixe por telefone, por exemplo).
+// Aceita qualquer horário, desde que não bata com outro agendamento ou bloqueio.
+function adminAgendar(senha, data, hora, servicoId, barbeiro, nome, telefone) {
+  if (!senhaCorreta(senha)) return SENHA_ERRADA;
+  const servico = SERVICOS.find(s => s.id === servicoId);
+  if (!servico) return { ok: false, erro: 'Serviço inválido.' };
+  if (!dataValida(data) || !horaValida(hora)) return { ok: false, erro: 'Data ou horário inválidos.' };
+  const escolha = barbeiro || TANTO_FAZ;
+  if (!escolhaValida(escolha)) return { ok: false, erro: 'Barbeiro inválido.' };
+  const nomeLimpo = String(nome || '').trim();
+  const fone = String(telefone || '').replace(/\D/g, '');
+  if (nomeLimpo.length < 2) return { ok: false, erro: 'Informe o nome do cliente.' };
+  if (fone.length < 10 || fone.length > 11) return { ok: false, erro: 'Informe o telefone com DDD.' };
+
+  const trava = LockService.getScriptLock();
+  trava.waitLock(15000);
+  try {
+    const ini = minutos(hora);
+    const fim = ini + servico.duracao;
+    const ocupados = intervalosOcupados(data);
+    const barbs = barbeirosPara(servico, escolha);
+    const livre = barbs.find(b => barbeiroLivre(ocupados, b, ini, fim));
+    if (!livre) return { ok: false, erro: 'Esse horário já está ocupado para o barbeiro escolhido.' };
+
+    const aba = SpreadsheetApp.getActive().getSheetByName(ABA_AGENDAMENTOS);
+    aba.appendRow([
+      Utilities.getUuid().slice(0, 8), data, horaDeMinutos(ini), horaDeMinutos(fim),
+      servico.nome, livre, nomeLimpo, fone, 'Confirmado',
+      Utilities.formatDate(new Date(), CONFIG.fuso, 'dd/MM/yyyy HH:mm') + ' (painel)'
+    ]);
+    ordenarAba(ABA_AGENDAMENTOS, 1, 2);
+    return { ok: true, barbeiro: livre };
+  } finally {
+    trava.releaseLock();
+  }
 }
 
 // Resumo de 7 dias a partir de uma data (para a faixa da semana)
