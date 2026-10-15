@@ -5,122 +5,315 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zure Barbearia | Corte social e barba premium em Anápolis</title>
 <meta name="description" content="Zure Barbearia em Anápolis-GO. Corte social, barba premium e tratamentos. Agende seu horário online.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0c0c0c;
-    --bg2:#161616;
-    --gold:#c9a227;
-    --text:#f5f0e6;
-    --muted:#a8a193;
-    --line:#2a2a2a;
+    --bg:#0b0b0b;
+    --bg2:#131313;
+    --bg3:#1a1a1a;
+    --gold:#d4af37;
+    --gold-soft:#f0d78c;
+    --gold-line:rgba(212,175,55,.28);
+    --text:#f7f3ea;
+    --muted:#a9a293;
+    --line:#262626;
     --whats:#25d366;
+    --radius:16px;
+    --shadow:0 24px 60px rgba(0,0,0,.45);
   }
+
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.55;overflow-x:hidden}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
   img{max-width:100%;display:block}
   a{color:inherit}
-  .wrap{padding:0 16px;max-width:1080px;margin:0 auto}
-  section{padding:56px 0;border-top:1px solid var(--line)}
-  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.5px}
-  h2{font-size:30px;margin-bottom:8px}
-  .eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:3px;font-size:12px;margin-bottom:8px}
-  .lead{color:var(--muted);margin-bottom:28px}
-  .btn{display:inline-block;background:var(--gold);color:#0c0c0c;padding:14px 28px;border:0;border-radius:4px;text-decoration:none;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:14px;cursor:pointer;font-family:inherit}
-  .btn:hover{filter:brightness(1.1)}
-  .btn:disabled{opacity:.6;cursor:wait}
-  .btn-ghost{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  .wrap{padding:0 20px;max-width:1120px;margin:0 auto}
+  section{padding:96px 0;scroll-margin-top:72px}
+  section:nth-of-type(even){background:var(--bg2)}
 
-  /* Cabeçalho */
-  header{position:sticky;top:0;z-index:50;background:rgba(12,12,12,.95);border-bottom:1px solid var(--line)}
-  .nav{display:flex;align-items:center;justify-content:space-between;height:64px}
-  .logo{font-family:Georgia,serif;font-size:22px;color:var(--gold);text-decoration:none;letter-spacing:2px}
-  .nav-links{display:flex;gap:18px;align-items:center;font-size:14px}
-  .nav-links a.link{text-decoration:none;opacity:.85}
-  .nav .btn{padding:10px 16px;font-size:12px}
-  @media (max-width:640px){ .nav-links a.link{display:none} }
+  h1,h2,h3{font-family:"Playfair Display",Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.3px;line-height:1.15}
+  h2{font-size:clamp(30px,5vw,44px);margin-bottom:12px}
+
+  /* Títulos das seções */
+  .eyebrow{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    color:var(--gold);text-transform:uppercase;letter-spacing:4px;font-size:12px;font-weight:600;
+    margin-bottom:14px;
+  }
+  .eyebrow::before,.eyebrow::after{content:"";width:34px;height:1px;background:var(--gold);opacity:.7}
+  section > .wrap > .eyebrow,
+  section > .wrap > h2,
+  section > .wrap > .lead{text-align:center}
+  .lead{color:var(--muted);margin:0 auto 40px;max-width:620px;font-size:16px}
+
+  /* Botões */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+    color:#0b0b0b;
+    padding:15px 30px;border:0;border-radius:999px;
+    text-decoration:none;font-weight:700;letter-spacing:.8px;text-transform:uppercase;font-size:13px;
+    cursor:pointer;font-family:inherit;
+    box-shadow:0 10px 30px rgba(212,175,55,.25);
+    transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(212,175,55,.35);filter:brightness(1.05)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{opacity:.6;cursor:wait;transform:none}
+  .btn-ghost{
+    background:transparent;color:var(--gold-soft);
+    border:1px solid rgba(212,175,55,.6);box-shadow:none;
+  }
+  .btn-ghost:hover{background:rgba(212,175,55,.1);box-shadow:none}
+
+  /* Cabeçalho fixo */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    background:transparent;
+    transition:background .3s ease, box-shadow .3s ease, border-color .3s ease;
+    border-bottom:1px solid transparent;
+  }
+  header.scrolled{
+    background:rgba(11,11,11,.88);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    border-bottom-color:var(--line);
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:72px}
+  .logo{
+    font-family:"Playfair Display",Georgia,serif;font-size:24px;font-weight:700;
+    color:var(--gold);text-decoration:none;letter-spacing:5px;
+  }
+  .nav-links{display:flex;gap:28px;align-items:center;font-size:14px;font-weight:500}
+  .nav-links a.link{text-decoration:none;opacity:.8;position:relative;transition:opacity .2s}
+  .nav-links a.link:hover{opacity:1;color:var(--gold-soft)}
+  .nav .btn{padding:11px 20px;font-size:12px;box-shadow:none}
+  @media (max-width:720px){ .nav-links a.link{display:none} }
 
   /* Início */
-  .hero{position:relative;min-height:88vh;display:flex;align-items:center;background:url('fotos/foto02.jpg') center/cover no-repeat}
-  .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.88))}
-  .hero .wrap{position:relative;text-align:center}
-  .hero h1{font-size:clamp(38px,9vw,68px);color:var(--text);margin-bottom:12px}
-  .hero h1 span{color:var(--gold)}
-  .hero p{color:#d8d2c4;font-size:17px;margin-bottom:28px}
-  .hero .btn{margin:0 6px 10px}
+  .hero{
+    position:relative;min-height:100vh;min-height:100svh;
+    display:flex;align-items:center;justify-content:center;
+    background:
+      linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.72) 60%,var(--bg) 100%),
+      url('fotos/foto02.jpg') center 30% / cover no-repeat;
+    padding:120px 0 80px;
+    text-align:center;
+  }
+  .hero::after{
+    content:"";position:absolute;inset:auto 0 0 0;height:140px;
+    background:linear-gradient(transparent,var(--bg));pointer-events:none;
+  }
+  .hero .wrap{position:relative;z-index:1}
+  .hero .eyebrow{color:var(--gold-soft);animation:rise .9s ease both}
+  .hero h1{
+    font-size:clamp(46px,10vw,88px);color:var(--text);margin-bottom:18px;
+    text-shadow:0 4px 30px rgba(0,0,0,.5);
+    animation:rise .9s .15s ease both;
+  }
+  .hero h1 span{
+    display:block;color:var(--gold);font-style:italic;font-weight:600;
+    font-size:.62em;letter-spacing:6px;text-transform:uppercase;margin-top:6px;
+  }
+  .hero p{
+    color:#e2dccd;font-size:clamp(16px,2.2vw,19px);max-width:520px;margin:0 auto 36px;
+    animation:rise .9s .3s ease both;
+  }
+  .hero .btn-row{animation:rise .9s .45s ease both}
+  .hero .btn{margin:6px}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 
   /* Serviços */
-  .group-title{font-family:Georgia,serif;color:var(--gold);font-size:20px;margin:28px 0 14px}
-  .cards{display:grid;grid-template-columns:1fr;gap:12px}
+  .group-title{
+    font-family:"Playfair Display",Georgia,serif;color:var(--gold-soft);
+    font-size:22px;margin:44px 0 18px;
+    display:flex;align-items:center;gap:16px;
+  }
+  .group-title::after{content:"";flex:1;height:1px;background:var(--gold-line)}
+  .group-title:first-child{margin-top:0}
+  .cards{display:grid;grid-template-columns:1fr;gap:14px}
   @media (min-width:700px){ .cards{grid-template-columns:1fr 1fr} }
-  .card{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:16px 18px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer}
-  .card:hover{border-color:var(--gold)}
-  .card .name{font-weight:700}
-  .card .info{color:var(--muted);font-size:14px}
-  .card .price{color:var(--gold);font-weight:700;white-space:nowrap;font-size:18px}
-  .note{color:var(--muted);font-size:13px;margin-top:16px}
+  .card{
+    background:linear-gradient(180deg,var(--bg3),var(--bg2));
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 22px;
+    display:flex;justify-content:space-between;gap:16px;align-items:center;
+    width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer;
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--gold-line);box-shadow:0 16px 36px rgba(0,0,0,.4)}
+  .card .name{font-weight:600;font-size:16px;margin-bottom:2px}
+  .card .info{color:var(--muted);font-size:13.5px;line-height:1.45}
+  .card .price{
+    color:var(--gold-soft);font-weight:700;white-space:nowrap;font-size:15px;
+    background:rgba(212,175,55,.1);border:1px solid var(--gold-line);
+    padding:7px 14px;border-radius:999px;
+  }
+  .note{color:var(--muted);font-size:13px;margin-top:22px;text-align:center}
 
   /* Agendamento */
-  .booking{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:20px;max-width:720px}
+  .booking{
+    background:linear-gradient(180deg,#171717,#0f0f0f);
+    border:1px solid var(--gold-line);border-radius:22px;
+    padding:30px 26px;max-width:760px;margin:0 auto;
+    box-shadow:var(--shadow);
+  }
   .booking:empty{display:none}
-  .passo{color:var(--gold);font-size:22px;margin-bottom:14px}
-  .resumo{color:var(--muted);font-size:13px;margin-bottom:14px}
-  .opcoes{display:grid;gap:10px;grid-template-columns:1fr}
+  .passo{color:var(--gold-soft);font-size:clamp(22px,3.5vw,26px);margin-bottom:18px;text-align:center}
+  .resumo{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:22px;
+  }
+  .resumo:empty{display:none}
+  .resumo span,.resumo{font-size:13px}
+  .opcoes{display:grid;gap:12px;grid-template-columns:1fr}
   @media (min-width:600px){ .opcoes{grid-template-columns:1fr 1fr 1fr} }
-  .opcao{background:#0f0f0f;border:1px solid var(--gold);color:var(--text);padding:14px;border-radius:6px;cursor:pointer;font:inherit;text-align:center}
-  .opcao:hover{background:#1a1608}
-  .opcao small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
-  .horas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .opcao{
+    background:#0d0d0d;border:1px solid #302a18;color:var(--text);
+    padding:16px 14px;border-radius:14px;cursor:pointer;font:inherit;font-weight:600;text-align:center;
+    transition:border-color .2s ease, background .2s ease, transform .2s ease;
+  }
+  .opcao:hover{border-color:var(--gold);background:#16130a;transform:translateY(-2px)}
+  .opcao:active{transform:translateY(0)}
+  .opcao small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:4px}
+  .horas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   @media (min-width:600px){ .horas{grid-template-columns:repeat(6,1fr)} }
-  .horas .opcao{padding:12px 6px}
-  .form label{display:block;margin-bottom:14px;color:var(--muted);font-size:14px}
-  .form input{display:block;width:100%;margin-top:6px;padding:12px;background:#0f0f0f;border:1px solid var(--line);color:var(--text);border-radius:4px;font:inherit;font-size:16px}
-  .form input:focus{outline:none;border-color:var(--gold)}
-  .acoes-voltar{margin-top:18px}
-  .erro{color:#ff8a8a;font-size:14px;margin:8px 0}
-  .sucesso p{margin-bottom:12px}
-  .link-btn{background:none;border:0;color:var(--gold);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+  .horas .opcao{padding:13px 6px;font-variant-numeric:tabular-nums}
+  .form{max-width:440px;margin:0 auto}
+  .form label{display:block;margin-bottom:16px;color:var(--muted);font-size:14px;font-weight:500}
+  .form input{
+    display:block;width:100%;margin-top:8px;padding:14px 16px;
+    background:#0d0d0d;border:1px solid #2e2e2e;color:var(--text);
+    border-radius:12px;font:inherit;font-size:16px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .form input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.15)}
+  .form .btn{width:100%;margin-top:6px}
+  .acoes-voltar{margin-top:22px;text-align:center}
+  .erro{color:#ff9a9a;font-size:14px;margin:10px 0;text-align:center}
+  .sucesso{text-align:center}
+  .sucesso p{margin-bottom:14px;color:#e6e0d2}
+  .sucesso .btn{margin-top:6px}
+  .link-btn{background:none;border:0;color:var(--gold-soft);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 
   /* Galeria */
-  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  @media (min-width:800px){ .gallery{grid-template-columns:repeat(4,1fr)} }
-  .gallery img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (min-width:800px){ .gallery{grid-template-columns:repeat(4,1fr);gap:16px} }
+  .gallery img{
+    width:100%;aspect-ratio:3/4;object-fit:cover;
+    border-radius:14px;border:1px solid var(--line);
+    transition:transform .6s ease, filter .6s ease;
+    filter:saturate(.95);
+  }
+  .gallery img:hover{transform:scale(1.03);filter:saturate(1.1)}
 
-  /* Barbeiros e sobre */
-  .about p{color:#d8d2c4;margin-bottom:14px;max-width:720px}
-  .barbers{display:grid;gap:12px;margin-top:24px}
+  /* Sobre e barbeiros */
+  .about{text-align:center}
+  .about p{color:#d8d2c4;margin:0 auto 16px;max-width:680px;font-size:17px}
+  .barbers{display:grid;gap:16px;margin-top:40px}
   @media (min-width:700px){ .barbers{grid-template-columns:1fr 1fr} }
-  .barber{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:20px}
-  .barber h3{color:var(--gold);font-size:22px;margin-bottom:6px}
-  .barber p{color:var(--muted);font-size:14px}
+  .barber{
+    background:linear-gradient(180deg,var(--bg3),var(--bg2));
+    border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:var(--radius);padding:26px 26px;text-align:left;
+  }
+  .barber h3{color:var(--gold-soft);font-size:24px;margin-bottom:8px}
+  .barber p{color:var(--muted);font-size:14.5px;margin:0}
 
   /* Avaliações */
-  .reviews{display:grid;gap:12px}
+  .reviews{display:grid;gap:16px}
   @media (min-width:700px){ .reviews{grid-template-columns:1fr 1fr 1fr} }
-  .review{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:20px}
-  .review .stars{color:var(--gold);letter-spacing:2px;margin-bottom:8px}
-  .review p{color:#d8d2c4;font-size:15px;margin-bottom:10px}
-  .review small{color:var(--muted)}
+  .review{
+    position:relative;
+    background:linear-gradient(180deg,var(--bg3),var(--bg2));
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 26px 24px;
+  }
+  .review::before{
+    content:"“";position:absolute;top:6px;right:18px;
+    font-family:"Playfair Display",Georgia,serif;font-size:72px;line-height:1;color:var(--gold);opacity:.25;
+  }
+  .review .stars{color:var(--gold);letter-spacing:3px;margin-bottom:12px;font-size:15px}
+  .review p{color:#e2dccd;font-size:15px;margin-bottom:14px}
+  .review small{color:var(--muted);font-size:13px}
 
   /* Contato */
-  .contact-grid{display:grid;gap:24px}
-  @media (min-width:800px){ .contact-grid{grid-template-columns:1fr 1fr;align-items:start} }
-  .info-block{margin-bottom:18px}
-  .info-block strong{color:var(--gold);display:block;margin-bottom:4px;text-transform:uppercase;font-size:12px;letter-spacing:2px}
-  .hours td{padding:4px 16px 4px 0;font-size:15px}
-  .map{width:100%;height:320px;border:0;border-radius:6px;filter:grayscale(.3) contrast(1.05)}
-  .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+  .contact-grid{display:grid;gap:40px;align-items:center}
+  @media (min-width:860px){ .contact-grid{grid-template-columns:1fr 1fr} }
+  .contact-grid .eyebrow{justify-content:flex-start}
+  .contact-grid .eyebrow::before{display:none}
+  .contact-grid h2{text-align:left}
+  .info-block{margin-bottom:24px;color:#e2dccd;font-size:15.5px}
+  .info-block strong{
+    color:var(--gold);display:block;margin-bottom:6px;
+    text-transform:uppercase;font-size:11.5px;letter-spacing:3px;font-weight:600;
+  }
+  .info-block a{color:var(--gold-soft);text-decoration:none;border-bottom:1px solid var(--gold-line)}
+  .hours{border-collapse:collapse}
+  .hours td{padding:6px 24px 6px 0;font-size:15px;color:#e2dccd}
+  .hours tr+tr td{color:var(--muted)}
+  .map{
+    width:100%;height:360px;border:1px solid var(--line);border-radius:var(--radius);
+    filter:grayscale(.6) contrast(1.05) brightness(.9);
+    transition:filter .4s ease;
+  }
+  .map:hover{filter:grayscale(0) contrast(1.05)}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
 
-  footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:13px;text-align:center}
-  footer a{color:var(--gold)}
+  footer{
+    border-top:1px solid var(--line);padding:36px 0 110px;
+    color:var(--muted);font-size:13.5px;text-align:center;background:#080808;
+  }
+  footer .logo{display:inline-block;margin-bottom:10px;font-size:20px}
+  footer a{color:var(--gold-soft);text-decoration:none}
+  footer a:hover{text-decoration:underline}
 
   /* Botão flutuante do WhatsApp */
-  .whats-float{position:fixed;right:16px;bottom:16px;z-index:60;background:var(--whats);color:#fff;text-decoration:none;font-weight:700;padding:14px 18px;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);font-size:15px}
+  .whats-float{
+    position:fixed;right:18px;bottom:18px;z-index:60;
+    display:flex;align-items:center;gap:10px;
+    background:var(--whats);color:#fff;text-decoration:none;font-weight:700;font-size:15px;
+    padding:14px 22px 14px 18px;border-radius:999px;
+    box-shadow:0 10px 28px rgba(37,211,102,.4);
+    animation:pulse 2.6s ease-in-out infinite;
+    transition:transform .2s ease;
+  }
+  .whats-float::before{
+    content:"";width:10px;height:10px;border-radius:50%;background:#fff;opacity:.9;
+  }
+  .whats-float:hover{transform:translateY(-2px)}
+  @keyframes pulse{
+    0%,100%{box-shadow:0 10px 28px rgba(37,211,102,.4)}
+    50%{box-shadow:0 10px 28px rgba(37,211,102,.4),0 0 0 12px rgba(37,211,102,.12)}
+  }
+
+  /* Celular */
+  @media (max-width:520px){
+    .wrap{padding:0 16px}
+    section{padding:72px 0}
+    .hero .btn{display:flex;width:min(300px,100%);margin:8px auto}
+    .booking{padding:24px 18px;border-radius:18px}
+    .card{padding:18px 16px}
+    .whats-float{right:14px;bottom:14px;font-size:14px;padding:13px 18px 13px 15px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
 
-<header>
+<header id="topo">
   <div class="wrap nav">
     <a class="logo" href="#inicio">ZURE</a>
     <nav class="nav-links">
@@ -139,9 +332,11 @@
     <div class="wrap">
       <div class="eyebrow">Anápolis · GO</div>
       <h1>Zure <span>Barbearia</span></h1>
-      <p>Corte social e barba premium. Estilo, técnica e experiência.</p>
-      <a class="btn" href="#agendar">Agendar horário</a>
-      <a class="btn btn-ghost" href="#servicos">Ver serviços</a>
+      <p>Corte social e barba premium. Estilo, técnica e experiência em cada atendimento.</p>
+      <div class="btn-row">
+        <a class="btn" href="#agendar">Agendar horário</a>
+        <a class="btn btn-ghost" href="#servicos">Ver serviços</a>
+      </div>
     </div>
   </div>
 
@@ -254,6 +449,7 @@
 
 <footer>
   <div class="wrap">
+    <a class="logo" href="#inicio">ZURE</a><br>
     © Zure Barbearia · Anápolis · GO<br>
     <a href="https://www.instagram.com/zurebarbearia_/" target="_blank" rel="noopener">Instagram</a>
   </div>
@@ -353,7 +549,7 @@
     if (estado.barbeiro) partes.push(estado.barbeiro);
     if (estado.data) partes.push(estado.data.split('-').reverse().join('/'));
     if (estado.hora) partes.push(estado.hora);
-    return partes.length ? '<div class="resumo">' + partes.map(esc).join(' · ') + '</div>' : '';
+    return partes.length ? '<div class="resumo">' + partes.map(p => '<span>' + esc(p) + '</span>').join('') + '</div>' : '';
   }
 
   function botaoVoltar(){
@@ -506,9 +702,16 @@
       + '<p>' + esc(j.servico) + ' com <strong>' + esc(j.barbeiro) + '</strong><br>' + data + ' às ' + j.hora + '</p>'
       + '<p class="lead">Se quiser, avise a barbearia pelo WhatsApp.</p>'
       + '<a class="btn" href="' + link + '" target="_blank" rel="noopener">Avisar no WhatsApp</a>'
-      + '<p style="margin-top:16px"><button type="button" class="link-btn" onclick="reiniciar()">Fazer outro agendamento</button></p>'
+      + '<p style="margin-top:18px"><button type="button" class="link-btn" onclick="reiniciar()">Fazer outro agendamento</button></p>'
       + '</div>';
   }
+
+  // Cabeçalho ganha fundo ao rolar a página
+  function atualizarCabecalho(){
+    el('topo').classList.toggle('scrolled', window.scrollY > 24);
+  }
+  window.addEventListener('scroll', atualizarCabecalho, { passive: true });
+  atualizarCabecalho();
 
   carregarConfig();
 </script>
