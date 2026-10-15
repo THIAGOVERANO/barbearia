@@ -171,7 +171,7 @@ function criarAgendamento(p) {
       servico.nome, barbeiro, nome, telefone, 'Confirmado',
       Utilities.formatDate(new Date(), CONFIG.fuso, 'dd/MM/yyyy HH:mm')
     ]);
-    ordenarAba(ABA_AGENDAMENTOS, [{ column: 2, ascending: true }, { column: 3, ascending: true }]);
+    ordenarAba(ABA_AGENDAMENTOS, 1, 2);
 
     return { ok: true, id: id, servico: servico.nome, barbeiro: barbeiro, data: p.data, hora: p.hora };
   } finally {
@@ -255,18 +255,30 @@ function horaDeMinutos(total) {
   return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
 }
 
-// Coloca as linhas em ordem de data e horário (linha 1 é o cabeçalho e fica no lugar)
-function ordenarAba(nomeAba, colunas) {
+// Coloca as linhas em ordem de data e horário (linha 1 é o cabeçalho e fica no lugar).
+// indiceData e indiceHora são as posições da coluna (0 = primeira coluna).
+// Linhas vazias vão para o final.
+function ordenarAba(nomeAba, indiceData, indiceHora) {
   const aba = SpreadsheetApp.getActive().getSheetByName(nomeAba);
   if (!aba) return;
   const ultimaLinha = aba.getLastRow();
   if (ultimaLinha < 2) return;
-  aba.getRange(2, 1, ultimaLinha - 1, aba.getLastColumn()).sort(colunas);
+  const area = aba.getRange(2, 1, ultimaLinha - 1, aba.getLastColumn());
+  const linhas = area.getValues();
+  linhas.sort((a, b) => {
+    if (!a[indiceData] && !b[indiceData]) return 0;
+    if (!a[indiceData]) return 1;
+    if (!b[indiceData]) return -1;
+    const dataA = textoData(a[indiceData]), dataB = textoData(b[indiceData]);
+    if (dataA !== dataB) return dataA < dataB ? -1 : 1;
+    return minutos(textoHora(a[indiceHora])) - minutos(textoHora(b[indiceHora]));
+  });
+  area.setValues(linhas);
 }
 
 function ordenarTudo() {
-  ordenarAba(ABA_AGENDAMENTOS, [{ column: 2, ascending: true }, { column: 3, ascending: true }]);
-  ordenarAba(ABA_BLOQUEIOS, [{ column: 1, ascending: true }, { column: 2, ascending: true }]);
+  ordenarAba(ABA_AGENDAMENTOS, 1, 2);
+  ordenarAba(ABA_BLOQUEIOS, 0, 1);
 }
 
 // Cria o menu "Agenda" na planilha, para ordenar na hora quando você digitar uma linha à mão
