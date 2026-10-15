@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<base target="_top">
+<title>Agenda Zure · Painel</title>
+<style>
+  :root{--bg:#0b0b0b;--bg2:#151515;--bg3:#1d1d1d;--gold:#d4af37;--gold-soft:#f0d78c;--text:#f7f3ea;--muted:#a9a293;--line:#2b2b2b;--red:#ff9a9a;--green:#25d366}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
+  [hidden]{display:none !important}
+  .logo{font-family:Georgia,"Times New Roman",serif;color:var(--gold);letter-spacing:4px;font-weight:700}
+  h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:700}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px}
+
+  /* Login */
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .login{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:32px 26px;width:100%;max-width:380px;text-align:center}
+  .login .logo{font-size:26px;margin-bottom:10px}
+  .login h2{font-size:20px;margin-bottom:22px;color:var(--gold-soft)}
+  .login input{width:100%;padding:14px;border-radius:12px;border:1px solid #333;background:#0d0d0d;color:var(--text);font:inherit;font-size:16px;margin-bottom:14px}
+  .login input:focus{outline:none;border-color:var(--gold)}
+
+  /* Botões */
+  .btn{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:#0b0b0b;border:0;border-radius:999px;padding:12px 22px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;text-align:center;font-size:14px}
+  .btn:active{transform:translateY(1px)}
+  .btn-sec{background:transparent;color:var(--gold-soft);border:1px solid rgba(212,175,55,.55);border-radius:999px;padding:9px 16px;font:inherit;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block}
+  .btn-sec:hover{background:rgba(212,175,55,.08)}
+  .btn-bloco{width:100%}
+
+  /* Topo */
+  .top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);background:#080808;position:sticky;top:0;z-index:5}
+  .top .logo{font-size:20px}
+
+  /* Barra de data */
+  .barra-data{display:flex;gap:8px;align-items:center;justify-content:center;margin:18px 0 12px;flex-wrap:wrap}
+  .barra-data input[type=date]{background:var(--bg2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit}
+  .barra-data button{background:var(--bg2);color:var(--gold-soft);border:1px solid var(--line);border-radius:10px;width:42px;height:40px;font-size:16px;cursor:pointer}
+
+  /* Semana */
+  .semana{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+  .dia{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:8px 2px;color:var(--text);font:inherit;cursor:pointer;text-align:center;display:flex;flex-direction:column;gap:2px}
+  .dia b{font-size:12px;color:var(--muted);font-weight:600}
+  .dia span{font-size:14px;font-weight:700}
+  .dia small{font-size:10px;color:var(--muted)}
+  .dia.ativo{border-color:var(--gold);background:#17140b}
+  @media (max-width:420px){ .dia small{display:none} }
+
+  /* Resumo */
+  .resumo{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px}
+  .resumo span{background:var(--bg3);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--gold-soft)}
+
+  /* Títulos */
+  .titulo{color:var(--gold-soft);font-size:18px;margin:26px 0 12px;display:flex;align-items:center;gap:12px}
+  .titulo::after{content:"";flex:1;height:1px;background:rgba(212,175,55,.25)}
+  .ajuda{color:var(--muted);font-size:13px;margin-bottom:12px}
+  .vazio{color:var(--muted);text-align:center;padding:24px 0}
+  .erro{color:var(--red);font-size:14px;margin:10px 0}
+
+  /* Itens da agenda */
+  .item{display:flex;gap:14px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+  .item.bl{background:#121212;border-style:dashed;border-color:#3a3a3a}
+  .item.cancelado{opacity:.5}
+  .hora{min-width:62px;text-align:center;border-right:1px solid var(--line);padding-right:12px;font-weight:700;color:var(--gold-soft);font-variant-numeric:tabular-nums}
+  .hora small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+  .info{flex:1;min-width:0}
+  .nome{font-weight:700;font-size:16px}
+  .det{color:var(--muted);font-size:13.5px;overflow-wrap:anywhere}
+  .linha-acoes{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  select,input[type=time],input[type=text]{background:#0d0d0d;color:var(--text);border:1px solid #333;border-radius:10px;padding:9px 10px;font:inherit;font-size:14px}
+  select:focus,input:focus{outline:none;border-color:var(--gold)}
+
+  /* Formulário de bloqueio */
+  .form-bloqueio{background:var(--bg2);border:1px solid var(--gold);border-radius:16px;padding:18px;margin:6px 0 14px}
+  .form-bloqueio label{display:block;color:var(--muted);font-size:13px;margin-bottom:12px}
+  .form-bloqueio select,.form-bloqueio input{display:block;width:100%;margin-top:6px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .acoes{display:flex;justify-content:center;margin:6px 0}
+
+  .aviso{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--gold);color:var(--text);padding:12px 18px;border-radius:12px;z-index:20;max-width:90%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .aviso.erro{border-color:var(--red);color:var(--red)}
+  .btn-wpp{background:var(--green);color:#fff;border:0;border-radius:999px;padding:9px 16px;font:inherit;font-size:13px;font-weight:700;text-decoration:none;display:inline-block}
+  footer{height:40px}
+</style>
+</head>
+<body>
+
+<!-- Tela de entrada -->
+<div id="login" class="login-wrap">
+  <div class="login">
+    <div class="logo">ZURE</div>
+    <h2>Painel da barbearia</h2>
+    <form onsubmit="entrar(event)">
+      <input id="senha" type="password" placeholder="Senha" autocomplete="current-password" required>
+      <button class="btn btn-bloco" type="submit">Entrar</button>
+      <p id="login-erro" class="erro"></p>
+    </form>
+  </div>
+</div>
+
+<!-- Painel -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="logo">ZURE</div>
+    <button class="btn-sec" onclick="sair()">Sair</button>
+  </header>
+
+  <main class="wrap">
+    <div class="barra-data">
+      <button onclick="mudarDia(-1)" aria-label="Dia anterior">◀</button>
+      <input type="date" id="data" onchange="irParaData(this.value)">
+      <button onclick="mudarDia(1)" aria-label="Próximo dia">▶</button>
+      <button class="btn-sec" onclick="irParaData(hojeISO())">Hoje</button>
+    </div>
+
+    <div id="semana" class="semana"></div>
+    <div id="resumo" class="resumo"></div>
+
+    <div class="acoes"><button class="btn" onclick="toggleBloqueio()">+ Bloquear horário</button></div>
+
+    <form id="form-bloqueio" class="form-bloqueio" hidden onsubmit="salvarBloqueio(event)">
+      <div class="grid2">
+        <label>Início <select id="b-ini"></select></label>
+        <label>Fim <select id="b-fim"></select></label>
+      </div>
+      <label>Barbeiro <select id="b-barbeiro"></select></label>
+      <label>Motivo <input id="b-motivo" type="text" maxlength="80" placeholder="Ex.: almoço, folga, compromisso"></label>
+      <button class="btn btn-bloco" type="submit">Salvar bloqueio</button>
+    </form>
+
+    <h3 class="titulo">Agenda do dia</h3>
+    <div id="lista"></div>
+
+    <h3 class="titulo" id="titulo-lembretes">Lembretes para amanhã</h3>
+    <p class="ajuda">Toque em "Enviar lembrete": o WhatsApp abre com a mensagem pronta. Basta confirmar o envio lá.</p>
+    <div id="lembretes"></div>
+    <footer></footer>
+  </main>
+</div>
+
+<div id="aviso" class="aviso" hidden></div>
+
+<script>
+  const estado = { senha: null, data: null };
+  const el = id => document.getElementById(id);
+  const STATUS = ['Confirmado', 'Concluído', 'Cancelado', 'Não compareceu'];
+  const NOMES_DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+  // Chama uma função do servidor e espera a resposta
+  function chamar(fn, ...args){
+    return new Promise((resolve, reject) => {
+      google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](...args);
+    });
+  }
+
+  function esc(t){
+    const d = document.createElement('div');
+    d.textContent = String(t);
+    return d.innerHTML;
+  }
+
+  function p2(n){ return String(n).padStart(2, '0'); }
+  function iso(d){ return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function hojeISO(){ return iso(new Date()); }
+  function somarDias(isoStr, n){
+    const [y, m, d] = isoStr.split('-').map(Number);
+    return iso(new Date(y, m - 1, d + n));
+  }
+  function brData(isoStr){ return isoStr.split('-').reverse().join('/'); }
+  function minutos(h){ const [a, b] = h.split(':').map(Number); return a * 60 + b; }
+  function horarios(){
+    const lista = [];
+    for (let m = 8 * 60; m <= 18 * 60; m += 30) lista.push(p2(Math.floor(m / 60)) + ':' + p2(m % 60));
+    return lista;
+  }
+
+  function aviso(msg, erro){
+    const a = el('aviso');
+    a.textContent = msg;
+    a.className = 'aviso' + (erro ? ' erro' : '');
+    a.hidden = false;
+    clearTimeout(aviso.t);
+    aviso.t = setTimeout(() => { a.hidden = true; }, 3500);
+  }
+
+  // ---------- Entrada ----------
+  function entrar(ev){
+    ev.preventDefault();
+    const senha = el('senha').value;
+    el('login-erro').textContent = '';
+    chamar('entrarNoPainel', senha).then(r => {
+      if (!r.ok) { el('login-erro').textContent = r.erro; return; }
+      estado.senha = senha;
+      try { sessionStorage.setItem('zure-senha', senha); } catch (e) {}
+      iniciar();
+    }).catch(() => { el('login-erro').textContent = 'Não consegui conectar. Tente de novo.'; });
+  }
+
+  function sair(){
+    estado.senha = null;
+    try { sessionStorage.removeItem('zure-senha'); } catch (e) {}
+    el('app').hidden = true;
+    el('login').hidden = false;
+    el('senha').value = '';
+  }
+
+  function iniciar(){
+    el('login').hidden = true;
+    el('app').hidden = false;
+    preencherHorarios();
+    irParaData(hojeISO());
+  }
+
+  function preencherHorarios(){
+    const lista = horarios();
+    el('b-ini').innerHTML = lista.slice(0, -1).map(h => '<option>' + h + '</option>').join('');
+    el('b-fim').innerHTML = lista.slice(1).map(h => '<option>' + h + '</option>').join('');
+    el('b-ini').value = '12:00';
+    el('b-fim').value = '13:00';
+  }
+
+  // ---------- Navegação por datas ----------
+  function irParaData(d){
+    if (!d) return;
+    estado.data = d;
+    el('data').value = d;
+    carregarDia();
+    carregarSemana();
+    carregarLembretes();
+  }
+
+  function mudarDia(n){ irParaData(somarDias(estado.data, n)); }
+
+  // ---------- Dia ----------
+  async function carregarDia(){
+    el('lista').innerHTML = '<p class="ajuda">Carregando...</p>';
+    try {
+      const r = await chamar('adminDia', estado.senha, estado.data);
+      if (!r.ok) throw new Error(r.erro);
+      renderDia(r);
+    } catch (e) {
+      el('lista').innerHTML = '<p class="erro">' + esc(e.message || 'Erro ao carregar a agenda.') + '</p>';
+    }
+  }
+
+  function renderDia(r){
+    const ativos = r.agendamentos.filter(a => a.status !== 'Cancelado').length;
+    const cancelados = r.agendamentos.length - ativos;
+    el('resumo').innerHTML =
+      '<span>' + ativos + ' agendamento(s)</span>' +
+      '<span>' + r.bloqueios.length + ' bloqueio(s)</span>' +
+      (cancelados ? '<span>' + cancelados + ' cancelado(s)</span>' : '');
+
+    const itens = [];
+    r.agendamentos.forEach(a => itens.push({ ini: a.inicio, html: cardAgendamento(a) }));
+    r.bloqueios.forEach(b => itens.push({ ini: b.inicio, html: cardBloqueio(b) }));
+    itens.sort((x, y) => minutos(x.ini) - minutos(y.ini));
+    el('lista').innerHTML = itens.length
+      ? itens.map(i => i.html).join('')
+      : '<p class="vazio">Nenhum agendamento neste dia.</p>';
+
+    el('b-barbeiro').innerHTML = '<option value="Todos">Barbearia toda</option>' +
+      r.barbeiros.map(b => '<option>' + esc(b) + '</option>').join('');
+  }
+
+  function cardAgendamento(a){
+    const opcoes = STATUS.map(s => '<option' + (s === a.status ? ' selected' : '') + '>' + esc(s) + '</option>').join('');
+    return '<div class="item' + (a.status === 'Cancelado' ? ' cancelado' : '') + '">' +
+      '<div class="hora">' + esc(a.inicio) + '<small>' + esc(a.fim) + '</small></div>' +
+      '<div class="info">' +
+        '<div class="nome">' + esc(a.cliente) + '</div>' +
+        '<div class="det">' + esc(a.servico) + ' · ' + esc(a.barbeiro) + '</div>' +
+        '<div class="det">' + esc(a.telefone) + '</div>' +
+        '<div class="linha-acoes">' +
+          '<select onchange="mudarStatus(' + a.linha + ', this.value)">' + opcoes + '</select>' +
+          '<a class="btn-wpp" href="' + linkWhats(a) + '" target="_blank" rel="noopener">WhatsApp</a>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function cardBloqueio(b){
+    const quem = b.barbeiro === 'Todos' ? 'Barbearia toda' : b.barbeiro;
+    return '<div class="item bl">' +
+      '<div class="hora">' + esc(b.inicio) + '<small>' + esc(b.fim) + '</small></div>' +
+      '<div class="info">' +
+        '<div class="nome">Bloqueado · ' + esc(quem) + '</div>' +
+        '<div class="det">' + esc(b.motivo || 'Sem motivo') + '</div>' +
+        '<div class="linha-acoes"><button class="btn-sec" onclick="removerBloqueio(' + b.linha + ')">Remover bloqueio</button></div>' +
+      '</div></div>';
+  }
+
+  // Link do WhatsApp com a mensagem pronta (abre no celular ou computador)
+  function linkWhats(a, dataISO){
+    let fone = String(a.telefone).replace(/\D/g, '');
+    if (fone.length === 10 || fone.length === 11) fone = '55' + fone;
+    const quando = dataISO ? ' de amanhã (' + brData(dataISO) + ')' : '';
+    const msg = 'Olá, ' + a.cliente + '! Lembrete do seu horário' + quando + ' às ' + a.inicio +
+      ': ' + a.servico + ' com ' + a.barbeiro + '. Até lá! Zure Barbearia';
+    return 'https://wa.me/' + fone + '?text=' + encodeURIComponent(msg);
+  }
+
+  // ---------- Ações ----------
+  async function mudarStatus(linha, status){
+    try {
+      const r = await chamar('adminMudarStatus', estado.senha, linha, status);
+      if (!r.ok) throw new Error(r.erro);
+      aviso('Status atualizado.');
+    } catch (e) {
+      aviso(e.message || 'Não consegui atualizar.', true);
+    }
+    atualizarTudo();
+  }
+
+  function toggleBloqueio(){
+    const form = el('form-bloqueio');
+    form.hidden = !form.hidden;
+  }
+
+  async function salvarBloqueio(ev){
+    ev.preventDefault();
+    const ini = el('b-ini').value;
+    const fim = el('b-fim').value;
+    const barbeiro = el('b-barbeiro').value;
+    const motivo = el('b-motivo').value.trim();
+    try {
+      const r = await chamar('adminBloquear', estado.senha, estado.data, ini, fim, barbeiro, motivo);
+      if (!r.ok) throw new Error(r.erro);
+      el('form-bloqueio').hidden = true;
+      el('b-motivo').value = '';
+      if (r.conflitos > 0) {
+        aviso('Bloqueado. Atenção: ' + r.conflitos + ' agendamento(s) cai(em) nesse horário.', true);
+      } else {
+        aviso('Horário bloqueado.');
+      }
+    } catch (e) {
+      aviso(e.message || 'Não consegui bloquear.', true);
+    }
+    atualizarTudo();
+  }
+
+  async function removerBloqueio(linha){
+    if (!confirm('Remover este bloqueio?')) return;
+    try {
+      const r = await chamar('adminRemoverBloqueio', estado.senha, linha);
+      if (!r.ok) throw new Error(r.erro);
+      aviso('Bloqueio removido.');
+    } catch (e) {
+      aviso(e.message || 'Não consegui remover.', true);
+    }
+    atualizarTudo();
+  }
+
+  function atualizarTudo(){
+    carregarDia();
+    carregarSemana();
+    carregarLembretes();
+  }
+
+  // ---------- Semana ----------
+  async function carregarSemana(){
+    try {
+      const r = await chamar('adminSemana', estado.senha, estado.data);
+      if (!r.ok) throw new Error(r.erro);
+      el('semana').innerHTML = r.dias.map(dia => {
+        const [y, m, d] = dia.data.split('-').map(Number);
+        const nome = NOMES_DIAS[new Date(y, m - 1, d).getDay()];
+        return '<button class="dia' + (dia.data === estado.data ? ' ativo' : '') + '" onclick="irParaData(\'' + dia.data + '\')">' +
+          '<b>' + nome + '</b><span>' + p2(d) + '/' + p2(m) + '</span>' +
+          '<small>' + dia.agendamentos + ' ag · ' + dia.bloqueios + ' bl</small></button>';
+      }).join('');
+    } catch (e) {
+      el('semana').innerHTML = '';
+    }
+  }
+
+  // ---------- Lembretes de amanhã ----------
+  async function carregarLembretes(){
+    const amanha = somarDias(hojeISO(), 1);
+    el('titulo-lembretes').textContent = 'Lembretes para amanhã (' + brData(amanha) + ')';
+    try {
+      const r = await chamar('adminDia', estado.senha, amanha);
+      if (!r.ok) throw new Error(r.erro);
+      const lista = r.agendamentos.filter(a => a.status === 'Confirmado');
+      el('lembretes').innerHTML = lista.length
+        ? lista.map(a => '<div class="item">' +
+            '<div class="hora">' + esc(a.inicio) + '</div>' +
+            '<div class="info"><div class="nome">' + esc(a.cliente) + '</div>' +
+            '<div class="det">' + esc(a.servico) + ' · ' + esc(a.barbeiro) + '</div>' +
+            '<div class="linha-acoes"><a class="btn-wpp" href="' + linkWhats(a, amanha) + '" target="_blank" rel="noopener">Enviar lembrete</a></div>' +
+            '</div></div>').join('')
+        : '<p class="vazio">Nenhum cliente confirmado para amanhã.</p>';
+    } catch (e) {
+      el('lembretes').innerHTML = '<p class="erro">' + esc(e.message || 'Erro ao carregar.') + '</p>';
+    }
+  }
+
+  // Se a senha já foi digitada nesta janela, entra direto
+  (function abrirSePossivel(){
+    let senha = null;
+    try { senha = sessionStorage.getItem('zure-senha'); } catch (e) {}
+    if (!senha) return;
+    chamar('entrarNoPainel', senha).then(r => {
+      if (r.ok) { estado.senha = senha; iniciar(); }
+    }).catch(() => {});
+  })();
+</script>
+</body>
+</html>

@@ -64,6 +64,7 @@ function preparar() {
 // Entrada do site (pedidos de leitura)
 // ------------------------------------------------------------
 function doGet(e) {
+  if (e.parameter.page === 'admin') return paginaAdmin();
   const acao = (e.parameter.action || 'config');
   try {
     if (acao === 'config') {
