@@ -171,6 +171,7 @@ function criarAgendamento(p) {
       servico.nome, barbeiro, nome, telefone, 'Confirmado',
       Utilities.formatDate(new Date(), CONFIG.fuso, 'dd/MM/yyyy HH:mm')
     ]);
+    ordenarAba(ABA_AGENDAMENTOS, [{ column: 2, ascending: true }, { column: 3, ascending: true }]);
 
     return { ok: true, id: id, servico: servico.nome, barbeiro: barbeiro, data: p.data, hora: p.hora };
   } finally {
@@ -252,6 +253,25 @@ function horaDeMinutos(total) {
   const h = Math.floor(total / 60);
   const m = total % 60;
   return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+}
+
+// Coloca as linhas em ordem de data e horário (linha 1 é o cabeçalho e fica no lugar)
+function ordenarAba(nomeAba, colunas) {
+  const aba = SpreadsheetApp.getActive().getSheetByName(nomeAba);
+  if (!aba) return;
+  const ultimaLinha = aba.getLastRow();
+  if (ultimaLinha < 2) return;
+  aba.getRange(2, 1, ultimaLinha - 1, aba.getLastColumn()).sort(colunas);
+}
+
+function ordenarTudo() {
+  ordenarAba(ABA_AGENDAMENTOS, [{ column: 2, ascending: true }, { column: 3, ascending: true }]);
+  ordenarAba(ABA_BLOQUEIOS, [{ column: 1, ascending: true }, { column: 2, ascending: true }]);
+}
+
+// Cria o menu "Agenda" na planilha, para ordenar na hora quando você digitar uma linha à mão
+function onOpen() {
+  SpreadsheetApp.getUi().createMenu('Agenda').addItem('Ordenar por data', 'ordenarTudo').addToUi();
 }
 
 function resposta(obj) {
